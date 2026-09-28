@@ -1,0 +1,1198 @@
+<!DOCTYPE html>
+<html lang="id" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Right-Angled Triangle Master | Dev Math Game</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        devBg: '#0b0f19',
+                        devCard: '#111827',
+                        devBorder: '#1f2937',
+                        devCyan: '#06b6d4',
+                        devViolet: '#8b5cf6',
+                        devEmerald: '#10b981',
+                        devRose: '#f43f5e',
+                        devYellow: '#f59e0b',
+                    },
+                    fontFamily: {
+                        mono: ['Fira Code', 'JetBrains Mono', 'Consolas', 'monospace'],
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0b0f19;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #1f2937;
+            border-radius: 3px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #374151;
+        }
+        .glow-cyan {
+            box-shadow: 0 0 20px rgba(6, 182, 212, 0.25);
+        }
+        .glow-violet {
+            box-shadow: 0 0 20px rgba(139, 92, 246, 0.25);
+        }
+        .glow-emerald {
+            box-shadow: 0 0 20px rgba(16, 185, 129, 0.25);
+        }
+        @keyframes pulseGlow {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 0.7; }
+        }
+        .animate-pulse-glow {
+            animation: pulseGlow 3s infinite ease-in-out;
+        }
+    </style>
+</head>
+<body class="bg-devBg text-slate-100 font-sans min-h-screen flex flex-col justify-between selection:bg-devCyan selection:text-black">
+
+    <!-- Top Header -->
+    <header class="border-b border-devBorder bg-devCard/80 backdrop-blur sticky top-0 z-30 px-4 py-3">
+        <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-4">
+            <!-- Logo & Title -->
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 rounded-lg bg-gradient-to-br from-devCyan to-devViolet flex items-center justify-center font-bold text-black text-xl shadow-lg">
+                    <i class="fa-solid font-mono text-slate-950">&gt;_</i>
+                </div>
+                <div>
+                    <div class="flex items-center gap-2">
+                        <h1 class="font-mono font-bold text-lg text-slate-100 tracking-wide">&lt;TriangleMaster /&gt;</h1>
+                        <span class="text-xs bg-devCyan/10 text-devCyan border border-devCyan/30 px-2 py-0.5 rounded font-mono">v2.0-PRO</span>
+                    </div>
+                    <p class="text-xs text-slate-400">Right-Angled Geometry for Engineers</p>
+                </div>
+            </div>
+
+            <!-- Stats Bar -->
+            <div class="flex items-center gap-4 sm:gap-6 font-mono text-sm">
+                <!-- Timer -->
+                <div class="bg-slate-900/80 px-3 py-1.5 rounded-md border border-devBorder flex items-center gap-2">
+                    <i class="fa-regular fa-clock text-devCyan"></i>
+                    <span id="timer-display" class="font-bold text-devCyan">00:00</span>
+                </div>
+
+                <!-- Score -->
+                <div class="bg-slate-900/80 px-3 py-1.5 rounded-md border border-devBorder flex items-center gap-2">
+                    <i class="fa-solid fa-trophy text-devYellow"></i>
+                    <span>SCORE: <strong id="score-display" class="text-devYellow">0</strong></span>
+                </div>
+
+                <!-- Streak Multiplier -->
+                <div class="bg-slate-900/80 px-3 py-1.5 rounded-md border border-devBorder flex items-center gap-2">
+                    <i class="fa-solid fa-bolt text-devViolet"></i>
+                    <span>STREAK: <strong id="streak-display" class="text-devViolet">x1.0</strong></span>
+                </div>
+
+                <!-- Audio Toggle -->
+                <button id="btn-audio" onclick="toggleAudio()" class="p-2 rounded-md bg-slate-900 border border-devBorder hover:border-devCyan text-slate-300 hover:text-devCyan transition" title="Toggle Audio (M)">
+                    <i id="audio-icon" class="fa-solid fa-volume-high"></i>
+                </button>
+
+                <!-- Formula Cheat Sheet Button -->
+                <button onclick="toggleModal('modal-cheat')" class="p-2 px-3 rounded-md bg-devViolet/20 border border-devViolet/40 hover:bg-devViolet/30 text-devViolet font-semibold transition flex items-center gap-2" title="Keyboard Shortcut: H">
+                    <i class="fa-solid fa-book-bookmark"></i>
+                    <span class="hidden md:inline">Cheat Sheet [H]</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Area -->
+    <main class="max-w-7xl w-full mx-auto p-4 sm:p-6 flex-grow grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+        <!-- Question Selector Tabs (Top / Full Span) -->
+        <div class="lg:col-span-12">
+            <div class="flex items-center justify-between mb-2">
+                <span class="text-xs font-mono text-slate-400 uppercase tracking-wider"><i class="fa-solid fa-code-commit mr-1"></i> Problem Backlog (10 Issues)</span>
+                <span id="progress-text" class="text-xs font-mono text-devCyan">0 / 10 Solved</span>
+            </div>
+            <div id="problem-tabs" class="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-thin">
+                <!-- Dynamically populated problem tabs -->
+            </div>
+        </div>
+
+        <!-- Left Panel: Interactive Dynamic Visualization (5 Cols) -->
+        <section class="lg:col-span-5 flex flex-col gap-4">
+            <div class="bg-devCard border border-devBorder rounded-xl p-4 flex flex-col h-full shadow-lg relative overflow-hidden">
+                <div class="flex items-center justify-between mb-3 border-b border-devBorder pb-2">
+                    <div class="flex items-center gap-2">
+                        <span class="w-3 h-3 rounded-full bg-rose-500 inline-block"></span>
+                        <span class="w-3 h-3 rounded-full bg-yellow-500 inline-block"></span>
+                        <span class="w-3 h-3 rounded-full bg-emerald-500 inline-block"></span>
+                        <span class="text-xs font-mono text-slate-400 ml-2">triangle_visualizer.svg</span>
+                    </div>
+                    <span id="target-indicator" class="text-xs font-mono px-2 py-0.5 rounded bg-devCyan/10 text-devCyan border border-devCyan/30">Target: Unknown</span>
+                </div>
+
+                <!-- SVG Visualizer Container -->
+                <div class="relative w-full h-64 sm:h-80 bg-slate-950/80 rounded-lg border border-devBorder/60 flex items-center justify-center p-4 overflow-hidden">
+                    <!-- Subtle Grid Background -->
+                    <div class="absolute inset-0 bg-[radial-gradient(#1f2937_1px,transparent_1px)] [background-size:16px_16px] opacity-40"></div>
+                    
+                    <svg id="triangle-svg" class="w-full h-full relative z-10" viewBox="0 0 400 300">
+                        <!-- Dynamic SVG Content rendered via JS -->
+                    </svg>
+                </div>
+
+                <!-- Visualizer Controls & Properties -->
+                <div class="mt-4 grid grid-cols-3 gap-2 text-center text-xs font-mono">
+                    <div class="bg-slate-900 p-2 rounded border border-devBorder">
+                        <div class="text-slate-400">Alas (a)</div>
+                        <div id="val-a" class="font-bold text-devCyan mt-0.5">-</div>
+                    </div>
+                    <div class="bg-slate-900 p-2 rounded border border-devBorder">
+                        <div class="text-slate-400">Tinggi (b)</div>
+                        <div id="val-b" class="font-bold text-devViolet mt-0.5">-</div>
+                    </div>
+                    <div class="bg-slate-900 p-2 rounded border border-devBorder">
+                        <div class="text-slate-400">Hypotenusa (c)</div>
+                        <div id="val-c" class="font-bold text-devEmerald mt-0.5">-</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Right Panel: Problem Prompt & Interactive Input Terminal (7 Cols) -->
+        <section class="lg:col-span-7 flex flex-col gap-4">
+            <div class="bg-devCard border border-devBorder rounded-xl p-5 sm:p-6 flex flex-col justify-between h-full shadow-lg relative">
+                
+                <!-- Problem Header -->
+                <div>
+                    <div class="flex items-center justify-between gap-2 border-b border-devBorder pb-3 mb-4">
+                        <div class="flex items-center gap-2">
+                            <span class="text-xs font-mono px-2.5 py-1 rounded-md bg-devViolet/20 text-devViolet font-semibold border border-devViolet/30" id="problem-category">Pythagoras</span>
+                            <h2 id="problem-title" class="font-mono font-bold text-base sm:text-lg text-slate-100">01_hypotenuse_calc.js</h2>
+                        </div>
+                        <span id="problem-status" class="text-xs font-mono px-2 py-1 rounded bg-slate-800 text-slate-400">UNSOLVED</span>
+                    </div>
+
+                    <!-- Problem Essay Context -->
+                    <div class="bg-slate-900/90 border border-devBorder/80 rounded-lg p-4 mb-5 text-sm sm:text-base leading-relaxed text-slate-200">
+                        <div class="text-xs font-mono text-devCyan mb-2 flex items-center gap-1.5">
+                            <i class="fa-solid fa-file-code"></i> Specification Prompt:
+                        </div>
+                        <p id="problem-text" class="font-sans">
+                            <!-- Question text loads here -->
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Interactive Input Terminal -->
+                <div>
+                    <form id="answer-form" onsubmit="submitAnswer(event)" class="space-y-4">
+                        <div>
+                            <label for="answer-input" class="block text-xs font-mono text-slate-400 mb-2 flex items-center justify-between">
+                                <span><i class="fa-solid fa-terminal text-devCyan mr-1.5"></i> Masukkan Jawaban / Return Value:</span>
+                                <span class="text-slate-500">Menerima angka, desimal, &amp; satuan (mis: 10, 14.14 cm)</span>
+                            </label>
+                            <div class="relative flex items-center">
+                                <span class="absolute left-3.5 text-devCyan font-mono font-bold">&gt;</span>
+                                <input 
+                                    type="text" 
+                                    id="answer-input" 
+                                    autocomplete="off" 
+                                    placeholder="Ketik jawaban kamu di sini..." 
+                                    class="w-full bg-slate-950 border-2 border-devBorder focus:border-devCyan focus:ring-1 focus:ring-devCyan rounded-lg py-3 pl-8 pr-28 font-mono text-slate-100 placeholder-slate-600 outline-none transition"
+                                />
+                                <button 
+                                    type="submit" 
+                                    id="btn-submit"
+                                    class="absolute right-1.5 top-1.5 bottom-1.5 px-4 rounded-md bg-devCyan hover:bg-cyan-400 text-slate-950 font-mono font-bold text-sm transition flex items-center gap-1.5"
+                                >
+                                    <span>RUN</span>
+                                    <i class="fa-solid fa-play text-xs"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+
+                    <!-- Feedback Alert Banner -->
+                    <div id="feedback-banner" class="hidden mt-4 p-3 rounded-lg font-mono text-sm border flex items-center justify-between animate-fade-in">
+                        <div class="flex items-center gap-2.5">
+                            <i id="feedback-icon" class="text-base"></i>
+                            <span id="feedback-text"></span>
+                        </div>
+                        <button id="btn-solution" onclick="toggleModal('modal-solution')" class="hidden text-xs bg-slate-800 hover:bg-slate-700 text-slate-200 px-2.5 py-1 rounded border border-slate-600">
+                            Lihat Pembahasan
+                        </button>
+                    </div>
+
+                    <!-- Bottom Action Controls -->
+                    <div class="mt-6 pt-4 border-t border-devBorder flex flex-wrap items-center justify-between gap-3 text-xs font-mono">
+                        <div class="flex items-center gap-2">
+                            <button type="button" onclick="prevProblem()" class="px-3 py-1.5 rounded bg-slate-900 border border-devBorder hover:border-slate-600 text-slate-300 transition">
+                                <i class="fa-solid fa-chevron-left mr-1"></i> Prev
+                            </button>
+                            <button type="button" onclick="nextProblem()" class="px-3 py-1.5 rounded bg-slate-900 border border-devBorder hover:border-slate-600 text-slate-300 transition">
+                                Next <i class="fa-solid fa-chevron-right ml-1"></i>
+                            </button>
+                        </div>
+
+                        <div class="flex items-center gap-2">
+                            <button type="button" onclick="toggleModal('modal-solution')" class="px-3 py-1.5 rounded bg-slate-900 border border-devBorder hover:border-devViolet text-devViolet transition flex items-center gap-1">
+                                <i class="fa-solid fa-code"></i>
+                                <span>Pembahasan / Code Proof</span>
+                            </button>
+                            <button type="button" onclick="resetCurrentProblem()" class="px-3 py-1.5 rounded bg-slate-900 border border-devBorder hover:border-devRose text-devRose transition" title="Reset [R]">
+                                <i class="fa-solid fa-rotate-right"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Bottom Shortcuts Legend -->
+    <footer class="border-t border-devBorder bg-devCard/50 py-2.5 px-4 text-xs font-mono text-slate-400">
+        <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-3">
+            <div class="flex items-center gap-4">
+                <span><kbd class="px-1.5 py-0.5 bg-slate-800 rounded border border-slate-700 text-slate-200">Enter</kbd> Submit</span>
+                <span><kbd class="px-1.5 py-0.5 bg-slate-800 rounded border border-slate-700 text-slate-200">H</kbd> Hint / Cheat Sheet</span>
+                <span><kbd class="px-1.5 py-0.5 bg-slate-800 rounded border border-slate-700 text-slate-200">R</kbd> Reset</span>
+                <span><kbd class="px-1.5 py-0.5 bg-slate-800 rounded border border-slate-700 text-slate-200">← / →</kbd> Switch Question</span>
+            </div>
+            <div class="text-slate-500">
+                Created for Full-Stack Developers &amp; Engineers
+            </div>
+        </div>
+    </footer>
+
+    <!-- MODAL 1: FORMULA CHEAT SHEET -->
+    <div id="modal-cheat" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-devCard border border-devBorder rounded-xl max-w-2xl w-full p-6 shadow-2xl relative max-h-[90vh] overflow-y-auto">
+            <div class="flex items-center justify-between border-b border-devBorder pb-3 mb-4">
+                <div class="flex items-center gap-2">
+                    <i class="fa-solid fa-book-bookmark text-devViolet text-lg"></i>
+                    <h3 class="font-mono font-bold text-lg text-slate-100">Right-Angled Triangle Cheat Sheet</h3>
+                </div>
+                <button onclick="toggleModal('modal-cheat')" class="text-slate-400 hover:text-white p-1">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+
+            <div class="space-y-4 font-mono text-xs sm:text-sm">
+                <!-- Pythagoras -->
+                <div class="bg-slate-900 p-4 rounded-lg border border-devBorder">
+                    <h4 class="font-bold text-devCyan mb-2 flex items-center gap-2">
+                        <i class="fa-solid fa-square-root-variable"></i> 1. Teorema Pythagoras
+                    </h4>
+                    <p class="text-slate-300 mb-2 font-sans text-xs">Pada segitiga siku-siku dengan hipotenusa $c$ dan sisi-siku $a$ &amp; $b$:</p>
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 text-center">
+                        <div class="bg-slate-950 p-2 rounded border border-slate-800 text-devEmerald">c = √(a² + b²)</div>
+                        <div class="bg-slate-950 p-2 rounded border border-slate-800 text-devCyan">a = √(c² - b²)</div>
+                        <div class="bg-slate-950 p-2 rounded border border-slate-800 text-devViolet">b = √(c² - a²)</div>
+                    </div>
+                </div>
+
+                <!-- Luas & Keliling -->
+                <div class="bg-slate-900 p-4 rounded-lg border border-devBorder">
+                    <h4 class="font-bold text-devYellow mb-2 flex items-center gap-2">
+                        <i class="fa-solid fa-draw-polygon"></i> 2. Luas &amp; Keliling
+                    </h4>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 font-sans text-xs">
+                        <div class="bg-slate-950 p-3 rounded border border-slate-800">
+                            <span class="font-mono font-bold text-devYellow block mb-1">Luas (Area):</span>
+                            <code>Luas = ½ × alas × tinggi</code>
+                        </div>
+                        <div class="bg-slate-950 p-3 rounded border border-slate-800">
+                            <span class="font-mono font-bold text-devYellow block mb-1">Keliling (Perimeter):</span>
+                            <code>Keliling = a + b + c</code>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Trigonometri dasar -->
+                <div class="bg-slate-900 p-4 rounded-lg border border-devBorder">
+                    <h4 class="font-bold text-devRose mb-2 flex items-center gap-2">
+                        <i class="fa-solid fa-calculator"></i> 3. Rasio Trigonometri (SOH-CAH-TOA)
+                    </h4>
+                    <div class="grid grid-cols-3 gap-2 text-center text-xs">
+                        <div class="bg-slate-950 p-2 rounded border border-slate-800">
+                            <span class="text-devRose block font-bold">sin(θ)</span>
+                            <span class="text-slate-400">Depan / Miring (b / c)</span>
+                        </div>
+                        <div class="bg-slate-950 p-2 rounded border border-slate-800">
+                            <span class="text-devRose block font-bold">cos(θ)</span>
+                            <span class="text-slate-400">Samping / Miring (a / c)</span>
+                        </div>
+                        <div class="bg-slate-950 p-2 rounded border border-slate-800">
+                            <span class="text-devRose block font-bold">tan(θ)</span>
+                            <span class="text-slate-400">Depan / Samping (b / a)</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-6 text-right">
+                <button onclick="toggleModal('modal-cheat')" class="px-4 py-2 rounded-lg bg-devViolet hover:bg-violet-600 text-white font-mono font-bold text-xs">
+                    Tutup [Esc]
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL 2: STEP-BY-STEP MATHEMATICAL & CODE PROOF -->
+    <div id="modal-solution" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-devCard border border-devBorder rounded-xl max-w-3xl w-full p-6 shadow-2xl relative max-h-[90vh] overflow-y-auto">
+            <div class="flex items-center justify-between border-b border-devBorder pb-3 mb-4">
+                <div class="flex items-center gap-2">
+                    <i class="fa-solid fa-file-contract text-devCyan text-lg"></i>
+                    <h3 class="font-mono font-bold text-lg text-slate-100">Mathematical Explanation &amp; Code Proof</h3>
+                </div>
+                <button onclick="toggleModal('modal-solution')" class="text-slate-400 hover:text-white p-1">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+
+            <div id="solution-content" class="space-y-4 text-sm font-sans">
+                <!-- Dynamically populated solution steps -->
+            </div>
+
+            <div class="mt-6 flex justify-end">
+                <button onclick="toggleModal('modal-solution')" class="px-4 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 font-mono text-xs border border-slate-600">
+                    Selesai Review
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL 3: FINAL EVALUATION DASHBOARD -->
+    <div id="modal-results" class="fixed inset-0 bg-black/80 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-devCard border-2 border-devCyan/50 rounded-2xl max-w-2xl w-full p-6 sm:p-8 shadow-2xl relative text-center glow-cyan">
+            
+            <div class="w-16 h-16 rounded-full bg-devCyan/20 border-2 border-devCyan flex items-center justify-center mx-auto mb-4 text-devCyan text-2xl">
+                <i class="fa-solid fa-award"></i>
+            </div>
+
+            <h2 class="text-2xl sm:text-3xl font-mono font-bold text-white mb-1">Developer Performance Report</h2>
+            <p class="text-slate-400 text-xs sm:text-sm font-mono mb-6">Execution Finished for Right-Angled Triangle Master Test Suite</p>
+
+            <div class="bg-slate-900 border border-devBorder rounded-xl p-5 mb-6 text-left space-y-4">
+                <div class="flex justify-between items-center border-b border-devBorder pb-3">
+                    <span class="text-slate-400 font-mono text-xs">Gelar Developer / Rank Title:</span>
+                    <span id="final-title" class="font-mono font-bold text-devEmerald text-base sm:text-lg">Principal Geometry Architect</span>
+                </div>
+
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 text-center font-mono">
+                    <div class="bg-slate-950 p-3 rounded border border-slate-800">
+                        <div class="text-slate-500 text-xs">Total Skor</div>
+                        <div id="final-score" class="text-xl font-bold text-devYellow mt-1">0</div>
+                    </div>
+                    <div class="bg-slate-950 p-3 rounded border border-slate-800">
+                        <div class="text-slate-500 text-xs">Akurasi Soal</div>
+                        <div id="final-accuracy" class="text-xl font-bold text-devCyan mt-1">0%</div>
+                    </div>
+                    <div class="bg-slate-950 p-3 rounded border border-slate-800">
+                        <div class="text-slate-500 text-xs">Waktu Total</div>
+                        <div id="final-time" class="text-xl font-bold text-devViolet mt-1">00:00</div>
+                    </div>
+                    <div class="bg-slate-950 p-3 rounded border border-slate-800">
+                        <div class="text-slate-500 text-xs">Max Streak</div>
+                        <div id="final-streak" class="text-xl font-bold text-devRose mt-1">x0</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex flex-wrap justify-center gap-3">
+                <button onclick="restartGame()" class="px-6 py-2.5 rounded-xl bg-devCyan hover:bg-cyan-400 text-slate-950 font-mono font-bold text-sm transition flex items-center gap-2">
+                    <i class="fa-solid fa-rotate-right"></i>
+                    <span>Restart Test Suite</span>
+                </button>
+                <button onclick="toggleModal('modal-results')" class="px-5 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-mono text-sm transition border border-slate-600">
+                    Tutup Report
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        /* State Management */
+        const gameState = {
+            currentProblemIndex: 0,
+            score: 0,
+            streak: 0,
+            maxStreak: 0,
+            solvedCount: 0,
+            startTime: null,
+            elapsedSeconds: 0,
+            timerInterval: null,
+            audioEnabled: true,
+            answers: new Array(10).fill(null), // tracks state per problem: { solved, userAns, scoreEarned }
+        };
+
+        /* Web Audio API Synthesizer */
+        let audioCtx = null;
+
+        function getAudioContext() {
+            if (!audioCtx) {
+                const AudioContext = window.AudioContext || window.webkitAudioContext;
+                if (AudioContext) audioCtx = new AudioContext();
+            }
+            if (audioCtx && audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+            return audioCtx;
+        }
+
+        function playSound(type) {
+            if (!gameState.audioEnabled) return;
+            const ctx = getAudioContext();
+            if (!ctx) return;
+
+            const now = ctx.currentTime;
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+
+            if (type === 'correct') {
+                // Happy ascending chord
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(523.25, now); // C5
+                osc.frequency.setValueAtTime(659.25, now + 0.1); // E5
+                osc.frequency.setValueAtTime(783.99, now + 0.2); // G5
+                osc.frequency.setValueAtTime(1046.50, now + 0.3); // C6
+                gain.gain.setValueAtTime(0.15, now);
+                gain.gain.exponentialRampToValueAtTime(0.001, now + 0.5);
+                osc.start(now);
+                osc.stop(now + 0.5);
+            } else if (type === 'wrong') {
+                // Low buzz error tone
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(160, now);
+                osc.frequency.linearRampToValueAtTime(110, now + 0.25);
+                gain.gain.setValueAtTime(0.2, now);
+                gain.gain.exponentialRampToValueAtTime(0.001, now + 0.3);
+                osc.start(now);
+                osc.stop(now + 0.3);
+            } else if (type === 'click') {
+                // Subtle click
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(800, now);
+                gain.gain.setValueAtTime(0.05, now);
+                gain.gain.exponentialRampToValueAtTime(0.001, now + 0.05);
+                osc.start(now);
+                osc.stop(now + 0.05);
+            } else if (type === 'win') {
+                // Fanfare
+                [523.25, 659.25, 783.99, 1046.50, 1318.51].forEach((freq, idx) => {
+                    const subOsc = ctx.createOscillator();
+                    const subGain = ctx.createGain();
+                    subOsc.type = 'triangle';
+                    subOsc.frequency.setValueAtTime(freq, now + idx * 0.12);
+                    subOsc.connect(subGain);
+                    subGain.connect(ctx.destination);
+                    subGain.gain.setValueAtTime(0.15, now + idx * 0.12);
+                    subGain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.12 + 0.4);
+                    subOsc.start(now + idx * 0.12);
+                    subOsc.stop(now + idx * 0.12 + 0.4);
+                });
+            }
+        }
+
+        function toggleAudio() {
+            gameState.audioEnabled = !gameState.audioEnabled;
+            const icon = document.getElementById('audio-icon');
+            if (gameState.audioEnabled) {
+                icon.className = 'fa-solid fa-volume-high text-devCyan';
+            } else {
+                icon.className = 'fa-solid fa-volume-xmark text-slate-500';
+            }
+        }
+
+        const PROBLEMS = [
+            {
+                id: 1,
+                title: "01_hypotenuse_calc.js",
+                category: "Pythagoras Dasar",
+                text: "Sebuah komponen struktur segitiga siku-siku memiliki alas (a) = 6 cm dan tinggi (b) = 8 cm. Hitunglah panjang sisi miring / hypotenusa (c) komponen tersebut dalam cm.",
+                a: 6, b: 8, c: 10,
+                target: "c",
+                unit: "cm",
+                expectedNumber: 10,
+                tolerance: 0.01,
+                hint: "Gunakan rumus c = √(a² + b²)",
+                explanation: {
+                    given: "Alas (a) = 6 cm, Tinggi (b) = 8 cm",
+                    formula: "c = √(a² + b²)",
+                    steps: [
+                        "1. Hitung a² = 6² = 36",
+                        "2. Hitung b² = 8² = 64",
+                        "3. c² = 36 + 64 = 100",
+                        "4. c = √100 = 10 cm"
+                    ],
+                    codeSnippet: `function calcHypotenuse(a, b) {\n    return Math.sqrt(Math.pow(a, 2) + Math.pow(b, 2));\n}\nconsole.log(calcHypotenuse(6, 8)); // Output: 10`
+                }
+            },
+            {
+                id: 2,
+                title: "02_vertical_side.js",
+                category: "Sisi Tegak",
+                text: "Sebuah kabel penopang (c) sepanjang 13 cm terhubung dari ujung tiang ke tanah. Jarak kaki tiang ke titik kawat di tanah (a) adalah 5 cm. Hitunglah tinggi tiang tegak (b) tersebut dalam cm.",
+                a: 5, b: 12, c: 13,
+                target: "b",
+                unit: "cm",
+                expectedNumber: 12,
+                tolerance: 0.01,
+                hint: "Gunakan rumus b = √(c² - a²)",
+                explanation: {
+                    given: "Hypotenusa (c) = 13 cm, Alas (a) = 5 cm",
+                    formula: "b = √(c² - a²)",
+                    steps: [
+                        "1. Hitung c² = 13² = 169",
+                        "2. Hitung a² = 5² = 25",
+                        "3. b² = 169 - 25 = 144",
+                        "4. b = √144 = 12 cm"
+                    ],
+                    codeSnippet: `function calcLeg(c, a) {\n    return Math.sqrt(Math.pow(c, 2) - Math.pow(a, 2));\n}\nconsole.log(calcLeg(13, 5)); // Output: 12`
+                }
+            },
+            {
+                id: 3,
+                title: "03_wall_ladder.js",
+                category: "Aplikasi Nyata",
+                text: "Sebuah tangga sepanjang 15 m disandarkan ke dinding gedung. Jarak antara kaki tangga dengan dinding di tanah adalah 9 m. Berapakah tinggi dinding gedung yang dicapai oleh ujung atas tangga tersebut (dalam meter)?",
+                a: 9, b: 12, c: 15,
+                target: "b",
+                unit: "m",
+                expectedNumber: 12,
+                tolerance: 0.01,
+                hint: "Tangga membentuk hypotenusa (15 m) dan jarak kaki ke dinding adalah alas (9 m).",
+                explanation: {
+                    given: "Tangga (c) = 15 m, Jarak alas (a) = 9 m",
+                    formula: "Tinggi (b) = √(c² - a²)",
+                    steps: [
+                        "1. c² = 15² = 225",
+                        "2. a² = 9² = 81",
+                        "3. b² = 225 - 81 = 144",
+                        "4. b = √144 = 12 m"
+                    ],
+                    codeSnippet: `const ladder = 15, base = 9;\nconst height = Math.sqrt(ladder**2 - base**2);\nconsole.log(height); // 12`
+                }
+            },
+            {
+                id: 4,
+                title: "04_park_area.js",
+                category: "Perhitungan Luas",
+                text: "Sebuah taman berbentuk segitiga siku-siku memiliki panjang alas 14 m dan sisi miring sepanjang 50 m. Hitunglah Luas taman tersebut (dalam m²).",
+                a: 14, b: 48, c: 50,
+                target: "Luas",
+                unit: "m²",
+                expectedNumber: 336,
+                tolerance: 0.01,
+                hint: "Cari tinggi (b) terlebih dahulu dengan Pythagoras, lalu hitung Luas = ½ × alas × tinggi.",
+                explanation: {
+                    given: "Alas (a) = 14 m, Sisi miring (c) = 50 m",
+                    formula: "1. b = √(c² - a²)\n2. Luas = ½ × a × b",
+                    steps: [
+                        "1. Tinggi b = √(50² - 14²) = √(2500 - 196) = √2304 = 48 m",
+                        "2. Luas = ½ × 14 × 48 = 7 × 48 = 336 m²"
+                    ],
+                    codeSnippet: `const a = 14, c = 50;\nconst b = Math.sqrt(c*c - a*a);\nconst area = 0.5 * a * b;\nconsole.log(area); // 336`
+                }
+            },
+            {
+                id: 5,
+                title: "05_perimeter_calc.js",
+                category: "Hitung Keliling",
+                text: "Sebuah modul PCB segitiga memiliki dua sisi tegak saling tegak lurus masing-masing berukuran a = 9 cm dan b = 12 cm. Hitunglah Keliling total modul segitiga tersebut (dalam cm).",
+                a: 9, b: 12, c: 15,
+                target: "Keliling",
+                unit: "cm",
+                expectedNumber: 36,
+                tolerance: 0.01,
+                hint: "Cari hypotenusa (c) lebih dulu, lalu Keliling = a + b + c.",
+                explanation: {
+                    given: "Sisi tegak a = 9 cm, b = 12 cm",
+                    formula: "1. c = √(a² + b²)\n2. Keliling = a + b + c",
+                    steps: [
+                        "1. c = √(9² + 12²) = √(81 + 144) = √225 = 15 cm",
+                        "2. Keliling = 9 + 12 + 15 = 36 cm"
+                    ],
+                    codeSnippet: `const a = 9, b = 12;\nconst c = Math.hypot(a, b);\nconst perimeter = a + b + c;\nconsole.log(perimeter); // 36`
+                }
+            },
+            {
+                id: 6,
+                title: "06_ship_navigation.js",
+                category: "Pelayaran Navigasi",
+                text: "Dua kapal berangkat dari pelabuhan yang sama. Kapal A berlayar ke arah Utara sejauh 20 km, sedangkan Kapal B berlayar ke arah Timur sejauh 21 km. Hitunglah jarak terdekat langsung antara Kapal A dan Kapal B (dalam km).",
+                a: 21, b: 20, c: 29,
+                target: "c",
+                unit: "km",
+                expectedNumber: 29,
+                tolerance: 0.01,
+                hint: "Arah Utara dan Timur membentuk sudut siku-siku (90°). Jarak terdekat adalah sisi miring.",
+                explanation: {
+                    given: "Arah Timur (a) = 21 km, Arah Utara (b) = 20 km",
+                    formula: "Jarak (c) = √(a² + b²)",
+                    steps: [
+                        "1. a² = 21² = 441",
+                        "2. b² = 20² = 400",
+                        "3. c² = 441 + 400 = 841",
+                        "4. c = √841 = 29 km"
+                    ],
+                    codeSnippet: `const east = 21, north = 20;\nconst distance = Math.hypot(east, north);\nconsole.log(distance); // 29`
+                }
+            },
+            {
+                id: 7,
+                title: "07_building_elevation.js",
+                category: "Trigonometri Elevasi",
+                text: "Seorang surveyor berdiri pada jarak horizontal 30√3 meter (≈ 51.96 m) dari dasar gedung. Ia mengukur sudut elevasi ke puncak gedung sebesar 30°. Berapakah tinggi gedung tersebut (dalam meter)?",
+                a: 51.96, b: 30, c: 60, angle: 30,
+                target: "Tinggi Gedung (b)",
+                unit: "m",
+                expectedNumber: 30,
+                tolerance: 0.05,
+                hint: "Gunakan hubungan tan(30°) = tinggi / alas. Ingat tan(30°) = 1 / √3.",
+                explanation: {
+                    given: "Alas (a) = 30√3 m ≈ 51.96 m, Sudut (θ) = 30°",
+                    formula: "tan(θ) = b / a  ⇒  b = a × tan(θ)",
+                    steps: [
+                        "1. tan(30°) = 1 / √3",
+                        "2. Tinggi b = 30√3 × (1 / √3) = 30 m"
+                    ],
+                    codeSnippet: `const dist = 30 * Math.sqrt(3);\nconst angleRad = 30 * (Math.PI / 180);\nconst height = dist * Math.tan(angleRad);\nconsole.log(Math.round(height)); // 30`
+                }
+            },
+            {
+                id: 8,
+                title: "08_isosceles_triangle.js",
+                category: "Segitiga Sama Kaki",
+                text: "Sebuah segitiga siku-siku sama kaki memiliki Luas sebesar 50 cm². Hitunglah panjang sisi miring (hypotenusa) segitiga tersebut (dalam cm, pembulatan 2 desimal atau 10√2).",
+                a: 10, b: 10, c: 14.14,
+                target: "c",
+                unit: "cm",
+                expectedNumber: 14.14,
+                tolerance: 0.1,
+                hint: "Siku-siku sama kaki berarti a = b. Maka Luas = ½ × a² = 50 ⇒ a = 10.",
+                explanation: {
+                    given: "Luas = 50 cm², a = b",
+                    formula: "1. ½ × a² = 50 ⇒ a = 10\n2. c = √(10² + 10²) = √200 = 10√2",
+                    steps: [
+                        "1. a² = 100 ⇒ a = b = 10 cm",
+                        "2. c = √(100 + 100) = √200 ≈ 14.14 cm"
+                    ],
+                    codeSnippet: `const area = 50;\nconst side = Math.sqrt(area * 2);\nconst hyp = Math.sqrt(2 * side * side);\nconsole.log(hyp.toFixed(2)); // 14.14`
+                }
+            },
+            {
+                id: 9,
+                title: "09_fence_perimeter.js",
+                category: "Pagar Lapangan",
+                text: "Sebuah lapangan berbentuk segitiga siku-siku memiliki luas 60 m² dan panjang alas 15 m. Pemilik ingin memasang pagar di seluruh keliling lapangan tersebut. Berapakah total panjang pagar yang dibutuhkan (dalam meter)?",
+                a: 15, b: 8, c: 17,
+                target: "Keliling Total",
+                unit: "m",
+                expectedNumber: 40,
+                tolerance: 0.01,
+                hint: "Cari tinggi b = (2 × Luas) / alas. Lalu cari c dengan Pythagoras, kemudian hitung keliling.",
+                explanation: {
+                    given: "Luas = 60 m², Alas (a) = 15 m",
+                    formula: "1. b = (2 × Luas) / a\n2. c = √(a² + b²)\n3. Pagar = a + b + c",
+                    steps: [
+                        "1. Tinggi b = (2 × 60) / 15 = 120 / 15 = 8 m",
+                        "2. Hypotenusa c = √(15² + 8²) = √(225 + 64) = √289 = 17 m",
+                        "3. Total Pagar = 15 + 8 + 17 = 40 m"
+                    ],
+                    codeSnippet: `const area = 60, a = 15;\nconst b = (2 * area) / a;\nconst c = Math.hypot(a, b);\nconst fence = a + b + c;\nconsole.log(fence); // 40`
+                }
+            },
+            {
+                id: 10,
+                title: "10_flagpole_wires.js",
+                category: "Kawat Pancang Dual",
+                text: "Sebuah tiang bendera setinggi 12 m dipasangi 2 kawat pancang identik di sisi kiri dan kanan. Setiap kawat ditancapkan ke tanah pada jarak 5 m dari kaki tiang. Hitunglah total panjang kawat yang dibutuhkan untuk KEDUA pancang tersebut (dalam meter).",
+                a: 5, b: 12, c: 13,
+                target: "Total 2 Kawat",
+                unit: "m",
+                expectedNumber: 26,
+                tolerance: 0.01,
+                hint: "Hitung panjang 1 kawat pancang dulu (hypotenusa), lalu kalikan 2.",
+                explanation: {
+                    given: "Tinggi tiang (b) = 12 m, Jarak pasak (a) = 5 m, 2 Kawat identik",
+                    formula: "1. Panjang 1 kawat c = √(a² + b²)\n2. Total = 2 × c",
+                    steps: [
+                        "1. c = √(5² + 12²) = √(25 + 144) = √169 = 13 m",
+                        "2. Total 2 kawat = 2 × 13 m = 26 m"
+                    ],
+                    codeSnippet: `const h = 12, d = 5;\nconst singleWire = Math.hypot(h, d);\nconst totalWire = 2 * singleWire;\nconsole.log(totalWire); // 26`
+                }
+            }
+        ];
+
+        window.addEventListener('DOMContentLoaded', () => {
+            initGame();
+            setupKeyboardShortcuts();
+        });
+
+        function initGame() {
+            gameState.startTime = new Date();
+            startTimer();
+            renderProblemTabs();
+            loadProblem(0);
+        }
+
+        function startTimer() {
+            if (gameState.timerInterval) clearInterval(gameState.timerInterval);
+            gameState.timerInterval = setInterval(() => {
+                gameState.elapsedSeconds++;
+                const mins = Math.floor(gameState.elapsedSeconds / 60).toString().padStart(2, '0');
+                const secs = (gameState.elapsedSeconds % 60).toString().padStart(2, '0');
+                document.getElementById('timer-display').innerText = `${mins}:${secs}`;
+            }, 1000);
+        }
+
+        function renderProblemTabs() {
+            const container = document.getElementById('problem-tabs');
+            container.innerHTML = '';
+
+            PROBLEMS.forEach((p, idx) => {
+                const btn = document.createElement('button');
+                btn.type = 'button';
+                btn.onclick = () => { playSound('click'); loadProblem(idx); };
+
+                const ansState = gameState.answers[idx];
+                let statusBadge = '';
+                let borderClass = 'border-devBorder';
+                let bgClass = 'bg-slate-900 text-slate-300';
+
+                if (idx === gameState.currentProblemIndex) {
+                    borderClass = 'border-devCyan shadow-md shadow-devCyan/20';
+                }
+
+                if (ansState && ansState.solved) {
+                    bgClass = 'bg-emerald-950/60 text-devEmerald';
+                    statusBadge = '<i class="fa-solid fa-check text-xs ml-1"></i>';
+                } else if (ansState && !ansState.solved) {
+                    bgClass = 'bg-rose-950/60 text-devRose';
+                    statusBadge = '<i class="fa-solid fa-xmark text-xs ml-1"></i>';
+                }
+
+                btn.className = `px-3 py-1.5 rounded-lg border text-xs font-mono transition flex items-center gap-1.5 whitespace-nowrap ${borderClass} ${bgClass} hover:border-devCyan`;
+                btn.innerHTML = `<span>[${(idx + 1).toString().padStart(2, '0')}]</span>${statusBadge}`;
+                container.appendChild(btn);
+            });
+
+            // Update header progress text
+            document.getElementById('progress-text').innerText = `${gameState.solvedCount} / 10 Solved`;
+        }
+
+        function loadProblem(index) {
+            gameState.currentProblemIndex = index;
+            const p = PROBLEMS[index];
+
+            // Render Tab states
+            renderProblemTabs();
+
+            // Text elements
+            document.getElementById('problem-category').innerText = p.category;
+            document.getElementById('problem-title').innerText = p.title;
+            document.getElementById('problem-text').innerText = p.text;
+            document.getElementById('target-indicator').innerText = `Target: ${p.target} (${p.unit})`;
+
+            // Visualizer property values
+            document.getElementById('val-a').innerText = p.a ? `${p.a} ${p.unit}` : '-';
+            document.getElementById('val-b').innerText = p.b ? `${p.b} ${p.unit}` : '-';
+            document.getElementById('val-c').innerText = p.c ? `${p.c} ${p.unit}` : '-';
+
+            // Input field
+            const inputEl = document.getElementById('answer-input');
+            const ansState = gameState.answers[index];
+
+            if (ansState && ansState.solved) {
+                inputEl.value = ansState.userAns;
+                inputEl.disabled = true;
+                showFeedback(true, `Solved! Score Earned: +${ansState.scoreEarned}`);
+                document.getElementById('problem-status').className = "text-xs font-mono px-2 py-1 rounded bg-emerald-950 text-devEmerald border border-emerald-800";
+                document.getElementById('problem-status').innerText = "PASSED";
+            } else {
+                inputEl.value = '';
+                inputEl.disabled = false;
+                hideFeedback();
+                document.getElementById('problem-status').className = "text-xs font-mono px-2 py-1 rounded bg-slate-800 text-slate-400";
+                document.getElementById('problem-status').innerText = "UNSOLVED";
+            }
+
+            // Draw Dynamic SVG Triangle
+            drawTriangleSVG(p);
+            
+            // Focus input
+            setTimeout(() => { inputEl.focus(); }, 100);
+        }
+
+        function drawTriangleSVG(p) {
+            const svg = document.getElementById('triangle-svg');
+            svg.innerHTML = '';
+
+            // SVG Canvas Dimensions
+            const svgWidth = 400;
+            const svgHeight = 300;
+            const padding = 50;
+
+            // Compute triangle aspect ratio
+            const baseVal = p.a || 15;
+            const heightVal = p.b || 12;
+
+            const maxDrawWidth = svgWidth - (padding * 2);
+            const maxDrawHeight = svgHeight - (padding * 2);
+
+            const scale = Math.min(maxDrawWidth / baseVal, maxDrawHeight / heightVal);
+
+            const drawA = baseVal * scale;
+            const drawB = heightVal * scale;
+
+            // Vertices: C = (padding, svgHeight - padding) [Right Angle]
+            // A = (padding + drawA, svgHeight - padding)
+            // B = (padding, svgHeight - padding - drawB)
+            const Ax = padding + drawA;
+            const Ay = svgHeight - padding;
+
+            const Bx = padding;
+            const By = svgHeight - padding - drawB;
+
+            const Cx = padding;
+            const Cy = svgHeight - padding;
+
+            // SVG Elements String construction
+            let html = `
+                <!-- Gradient Definitions -->
+                <defs>
+                    <linearGradient id="lineGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" stop-color="#06b6d4"/>
+                        <stop offset="50%" stop-color="#8b5cf6"/>
+                        <stop offset="100%" stop-color="#10b981"/>
+                    </linearGradient>
+                    <linearGradient id="fillGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" stop-color="#06b6d4" stop-opacity="0.15"/>
+                        <stop offset="100%" stop-color="#8b5cf6" stop-opacity="0.05"/>
+                    </linearGradient>
+                </defs>
+
+                <!-- Filled Triangle Area -->
+                <polygon points="${Cx},${Cy} ${Ax},${Ay} ${Bx},${By}" fill="url(#fillGrad)" stroke="none" />
+
+                <!-- Main Triangle Outline -->
+                <polygon points="${Cx},${Cy} ${Ax},${Ay} ${Bx},${By}" fill="none" stroke="url(#lineGrad)" stroke-width="3" stroke-linejoin="round" />
+
+                <!-- Right Angle Box Marker at C -->
+                <path d="M ${Cx} ${Cy - 18} L ${Cx + 18} ${Cy - 18} L ${Cx + 18} ${Cy}" fill="none" stroke="#06b6d4" stroke-width="2" />
+                <circle cx="${Cx + 7}" cy="${Cy - 7}" r="2" fill="#06b6d4" />
+
+                <!-- Corner Vertices Dots -->
+                <circle cx="${Cx}" cy="${Cy}" r="4" fill="#06b6d4" />
+                <circle cx="${Ax}" cy="${Ay}" r="4" fill="#10b981" />
+                <circle cx="${Bx}" cy="${By}" r="4" fill="#8b5cf6" />
+            `;
+
+            // Elevation Angle Arc if applicable (Q7)
+            if (p.angle) {
+                const arcRadius = 30;
+                html += `
+                    <path d="M ${Ax - arcRadius} ${Ay} A ${arcRadius} ${arcRadius} 0 0 0 ${Ax - arcRadius * Math.cos(p.angle * Math.PI/180)} ${Ay - arcRadius * Math.sin(p.angle * Math.PI/180)}" fill="none" stroke="#f43f5e" stroke-width="2" stroke-dasharray="3,3" />
+                    <text x="${Ax - arcRadius - 12}" y="${Ay - 8}" fill="#f43f5e" font-family="monospace" font-size="12" font-weight="bold">${p.angle}°</text>
+                `;
+            }
+
+            // Labels: Side a (Alas), Side b (Tinggi), Side c (Hypotenusa)
+            const aHighlight = (p.target === 'a' || p.target === 'alas') ? '#06b6d4' : '#94a3b8';
+            const bHighlight = (p.target === 'b' || p.target === 'tinggi' || p.target.includes('Gedung')) ? '#8b5cf6' : '#94a3b8';
+            const cHighlight = (p.target === 'c' || p.target.includes('Kawat')) ? '#10b981' : '#94a3b8';
+
+            // Side a label
+            html += `<text x="${Cx + drawA/2}" y="${Cy + 25}" fill="${aHighlight}" font-family="monospace" font-size="13" font-weight="bold" text-anchor="middle">a = ${p.a || '?'} ${p.unit}</text>`;
+            
+            // Side b label
+            html += `<text x="${Cx - 15}" y="${Cy - drawB/2}" fill="${bHighlight}" font-family="monospace" font-size="13" font-weight="bold" text-anchor="end" dominant-baseline="middle">b = ${p.b || '?'} ${p.unit}</text>`;
+            
+            // Side c label (Hypotenusa)
+            const midCx = (Ax + Bx) / 2;
+            const midCy = (Ay + By) / 2;
+            html += `<text x="${midCx + 15}" y="${midCy - 10}" fill="${cHighlight}" font-family="monospace" font-size="13" font-weight="bold" text-anchor="start">c = ${p.c || '?'} ${p.unit}</text>`;
+
+            svg.innerHTML = html;
+        }
+
+        function parseUserInput(inputStr) {
+            if (!inputStr) return null;
+            // Clean string: replace commas with dots, remove non-numeric chars except digits, decimal point, slash
+            const cleaned = inputStr.toLowerCase().replace(/,/g, '.').trim();
+            
+            // Check if fraction (e.g. 10/2)
+            if (cleaned.includes('/')) {
+                const parts = cleaned.split('/');
+                if (parts.length === 2) {
+                    const num = parseFloat(parts[0]);
+                    const den = parseFloat(parts[1]);
+                    if (!isNaN(num) && !isNaN(den) && den !== 0) return num / den;
+                }
+            }
+
+            // Extract first valid float number using regex
+            const match = cleaned.match(/[-+]?[0-9]*\.?[0-9]+/);
+            if (match) {
+                return parseFloat(match[0]);
+            }
+            return null;
+        }
+
+        function submitAnswer(event) {
+            if (event) event.preventDefault();
+
+            const p = PROBLEMS[gameState.currentProblemIndex];
+            const inputEl = document.getElementById('answer-input');
+            const rawVal = inputEl.value;
+            const userNum = parseUserInput(rawVal);
+
+            if (userNum === null) {
+                showFeedback(false, "Format input tidak valid. Masukkan angka desimal atau bulat.");
+                playSound('wrong');
+                return;
+            }
+
+            // Check tolerance: |userNum - expectedNumber| <= (tolerance * expectedNumber) + 0.05
+            const diff = Math.abs(userNum - p.expectedNumber);
+            const maxAllowedDiff = (p.expectedNumber * p.tolerance) + 0.05;
+
+            if (diff <= maxAllowedDiff) {
+                // CORRECT
+                playSound('correct');
+                gameState.streak++;
+                if (gameState.streak > gameState.maxStreak) gameState.maxStreak = gameState.streak;
+
+                // Score Calculation with streak multiplier
+                const streakMultiplier = 1 + (gameState.streak - 1) * 0.25;
+                const baseScore = 100;
+                const scoreEarned = Math.round(baseScore * streakMultiplier);
+                
+                gameState.score += scoreEarned;
+                gameState.solvedCount++;
+
+                gameState.answers[gameState.currentProblemIndex] = {
+                    solved: true,
+                    userAns: rawVal,
+                    scoreEarned: scoreEarned
+                };
+
+                // Update UI Header
+                document.getElementById('score-display').innerText = gameState.score;
+                document.getElementById('streak-display').innerText = `x${streakMultiplier.toFixed(2)}`;
+
+                showFeedback(true, `Jawaban Benar! +${scoreEarned} Pts (Multiplier: x${streakMultiplier.toFixed(2)})`);
+                inputEl.disabled = true;
+
+                renderProblemTabs();
+
+                // Check if all 10 problems are solved
+                if (gameState.solvedCount === PROBLEMS.length) {
+                    setTimeout(() => {
+                        playSound('win');
+                        showFinalResults();
+                    }, 800);
+                }
+            } else {
+                // INCORRECT
+                playSound('wrong');
+                gameState.streak = 0;
+                document.getElementById('streak-display').innerText = `x1.0`;
+
+                gameState.answers[gameState.currentProblemIndex] = {
+                    solved: false,
+                    userAns: rawVal,
+                    scoreEarned: 0
+                };
+
+                showFeedback(false, `Jawaban kurang tepat. Periksa kembali rumus atau kalkulasi kamu.`);
+                renderProblemTabs();
+            }
+        }
+
+        function showFeedback(isSuccess, message) {
+            const banner = document.getElementById('feedback-banner');
+            const icon = document.getElementById('feedback-icon');
+            const text = document.getElementById('feedback-text');
+            const btnSol = document.getElementById('btn-solution');
+
+            banner.classList.remove('hidden', 'bg-emerald-950/80', 'border-emerald-700', 'text-emerald-200', 'bg-rose-950/80', 'border-rose-700', 'text-rose-200');
+
+            if (isSuccess) {
+                banner.classList.add('bg-emerald-950/80', 'border-emerald-700', 'text-emerald-200');
+                icon.className = 'fa-solid fa-circle-check text-devEmerald';
+                btnSol.classList.remove('hidden');
+            } else {
+                banner.classList.add('bg-rose-950/80', 'border-rose-700', 'text-rose-200');
+                icon.className = 'fa-solid fa-circle-xmark text-devRose';
+                btnSol.classList.remove('hidden');
+            }
+
+            text.innerText = message;
+        }
+
+        function hideFeedback() {
+            document.getElementById('feedback-banner').classList.add('hidden');
+        }
+
+        function populateSolutionModal() {
+            const p = PROBLEMS[gameState.currentProblemIndex];
+            const container = document.getElementById('solution-content');
+
+            container.innerHTML = `
+                <div class="bg-slate-900 p-4 rounded-lg border border-devBorder font-mono">
+                    <div class="text-xs text-slate-400 mb-1">Issue Specification:</div>
+                    <div class="text-devCyan font-bold mb-2">${p.title} - ${p.category}</div>
+                    <p class="text-slate-300 font-sans text-sm">${p.text}</p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 font-mono text-xs">
+                    <div class="bg-slate-900 p-4 rounded-lg border border-devBorder">
+                        <span class="text-devYellow font-bold block mb-2"><i class="fa-solid fa-list-check"></i> Given Parameters:</span>
+                        <div class="text-slate-300 whitespace-pre-line">${p.explanation.given}</div>
+                    </div>
+                    <div class="bg-slate-900 p-4 rounded-lg border border-devBorder">
+                        <span class="text-devViolet font-bold block mb-2"><i class="fa-solid fa-square-root-variable"></i> Math Formula:</span>
+                        <div class="text-devViolet font-semibold whitespace-pre-line">${p.explanation.formula}</div>
+                    </div>
+                </div>
+
+                <div class="bg-slate-900 p-4 rounded-lg border border-devBorder font-mono text-xs">
+                    <span class="text-devEmerald font-bold block mb-2"><i class="fa-solid fa-stairs"></i> Step-by-Step Resolution:</span>
+                    <ul class="space-y-1.5 text-slate-300">
+                        ${p.explanation.steps.map(s => `<li>${s}</li>`).join('')}
+                    </ul>
+                </div>
+
+                <div class="bg-slate-950 p-4 rounded-lg border border-devBorder font-mono text-xs overflow-x-auto">
+                    <div class="flex justify-between items-center text-slate-500 mb-2">
+                        <span><i class="fa-brands fa-js text-yellow-500 mr-1"></i> Solution Algorithm (JS)</span>
+                        <span>Expected: ${p.expectedNumber} ${p.unit}</span>
+                    </div>
+                    <pre class="text-devCyan"><code>${p.explanation.codeSnippet}</code></pre>
+                </div>
+            `;
+        }
+
+        function prevProblem() {
+            playSound('click');
+            const nextIdx = (gameState.currentProblemIndex - 1 + PROBLEMS.length) % PROBLEMS.length;
+            loadProblem(nextIdx);
+        }
+
+        function nextProblem() {
+            playSound('click');
+            const nextIdx = (gameState.currentProblemIndex + 1) % PROBLEMS.length;
+            loadProblem(nextIdx);
+        }
+
+        function resetCurrentProblem() {
+            playSound('click');
+            gameState.answers[gameState.currentProblemIndex] = null;
+            loadProblem(gameState.currentProblemIndex);
+        }
+
+        function toggleModal(modalId) {
+            playSound('click');
+            if (modalId === 'modal-solution') {
+                populateSolutionModal();
+            }
+            const modal = document.getElementById(modalId);
+            if (modal.classList.contains('hidden')) {
+                modal.classList.remove('hidden');
+            } else {
+                modal.classList.add('hidden');
+            }
+        }
+
+        function setupKeyboardShortcuts() {
+            document.addEventListener('keydown', (e) => {
+                // Ignore shortcuts if typing in input field unless it's Enter
+                if (e.target.tagName === 'INPUT') {
+                    if (e.key === 'Enter') {
+                        // Handled by form submit
+                    }
+                    return;
+                }
+
+                if (e.key === 'h' || e.key === 'H') {
+                    e.preventDefault();
+                    toggleModal('modal-cheat');
+                } else if (e.key === 'r' || e.key === 'R') {
+                    e.preventDefault();
+                    resetCurrentProblem();
+                } else if (e.key === 'ArrowLeft') {
+                    e.preventDefault();
+                    prevProblem();
+                } else if (e.key === 'ArrowRight') {
+                    e.preventDefault();
+                    nextProblem();
+                } else if (e.key === 'Escape') {
+                    ['modal-cheat', 'modal-solution', 'modal-results'].forEach(id => {
+                        document.getElementById(id).classList.add('hidden');
+                    });
+                }
+            });
+        }
+
+        function showFinalResults() {
+            if (gameState.timerInterval) clearInterval(gameState.timerInterval);
+
+            const totalScore = gameState.score;
+            const accuracy = (gameState.solvedCount / PROBLEMS.length) * 100;
+            const timeStr = document.getElementById('timer-display').innerText;
+
+            let title = "Junior Geometry QA";
+            if (totalScore >= 1200) title = "Principal Geometry Architect";
+            else if (totalScore >= 1000) title = "Senior Math Engineer";
+            else if (totalScore >= 700) title = "Full-Stack Geometry Developer";
+            else if (totalScore >= 400) title = "Geometry Bug Hunter";
+
+            document.getElementById('final-title').innerText = title;
+            document.getElementById('final-score').innerText = totalScore;
+            document.getElementById('final-accuracy').innerText = `${accuracy.toFixed(0)}%`;
+            document.getElementById('final-time').innerText = timeStr;
+            document.getElementById('final-streak').innerText = `x${gameState.maxStreak}`;
+
+            toggleModal('modal-results');
+        }
+
+        function restartGame() {
+            gameState.score = 0;
+            gameState.streak = 0;
+            gameState.maxStreak = 0;
+            gameState.solvedCount = 0;
+            gameState.elapsedSeconds = 0;
+            gameState.answers = new Array(10).fill(null);
+
+            document.getElementById('score-display').innerText = '0';
+            document.getElementById('streak-display').innerText = 'x1.0';
+
+            toggleModal('modal-results');
+            initGame();
+        }
+    </script>
+</body>
+</html>
